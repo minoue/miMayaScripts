@@ -137,65 +137,71 @@ class Window(QtWidgets.QWidget):
                 self.cb.addItems(keys)
     
     def make(self):
-        typ = self.cb.currentText()
-        data = self.data[typ]
+        sel = cmds.ls(sl=True, fl=True, long=True)
+        for i in sel:
+            cmds.select(i, r=True)
 
-        fnCurve = getFnCurve()
-        matrix = getFirstCVMatrix(fnCurve)
+            typ = self.cb.currentText()
+            data = self.data[typ]
 
-        p = createProfile(data)
-        cmds.xform(p, m=matrix)
+            fnCurve = getFnCurve()
+            matrix = getFirstCVMatrix(fnCurve)
 
-        path = fnCurve.fullPathName()
+            p = createProfile(data)
+            cmds.xform(p, m=matrix)
 
-        ext = ropeExtrude(p, path)
+            path = fnCurve.fullPathName()
 
-        newSurface = ext[0]
-        newSurfaceShape = cmds.listRelatives(newSurface, shapes=True)[0]
-        extrudeNode= ext[1]
-        tesse = cmds.listConnections(newSurfaceShape, type="nurbsTessellate")[0]
+            ext = ropeExtrude(p, path)
 
-        cmds.setAttr(extrudeNode + ".rotation", 1080)
-        cmds.setAttr(tesse + ".polygonType", 1)
-        cmds.setAttr(tesse + ".format", 2)
-        cmds.setAttr(tesse + ".uNumber", 1)
-        cmds.setAttr(tesse + ".vNumber", 32)
+            newSurface = ext[0]
+            newSurfaceShape = cmds.listRelatives(newSurface, shapes=True)[0]
+            extrudeNode= ext[1]
+            tesse = cmds.listConnections(newSurfaceShape, type="nurbsTessellate")[0]
 
-        ctrlGrp = cmds.group(w=True, em=True)
-        ropeGrpName = "rope_GRP"
-        newRopeName = cmds.rename(ctrlGrp, ropeGrpName)
+            cmds.setAttr(extrudeNode + ".rotation", 1080)
+            cmds.setAttr(tesse + ".polygonType", 1)
+            cmds.setAttr(tesse + ".format", 2)
+            cmds.setAttr(tesse + ".uNumber", 1)
+            cmds.setAttr(tesse + ".vNumber", 32)
 
-        cmds.parent(p, newRopeName)
-        cmds.parent(newSurface, newRopeName)
+            ctrlGrp = cmds.group(w=True, em=True)
+            ropeGrpName = "rope_GRP"
+            newRopeName = cmds.rename(ctrlGrp, ropeGrpName)
 
-        cmds.addAttr(
-            newRopeName,
-            shortName='tw',
-            longName='twist', 
-            at='short',
-            keyable=True)
-        cmds.addAttr(
-            newRopeName,
-            shortName='w',
-            longName='width',
-            at='float',
-            keyable=True)
-        cmds.addAttr(
-            newRopeName,
-            shortName='div',
-            longName='division',
-            at='long',
-            keyable=True,
-            defaultValue=64)
+            cmds.parent(p, newRopeName)
+            cmds.parent(newSurface, newRopeName)
 
-        cmds.connectAttr(newRopeName + ".division", tesse + ".vNumber")
-        # cmds.connectAttr(newRopeName + ".width", tesse + ".vNumber")
+            cmds.addAttr(
+                newRopeName,
+                shortName='tw',
+                longName='twist', 
+                at='short',
+                keyable=True)
+            cmds.addAttr(
+                newRopeName,
+                shortName='w',
+                longName='width',
+                at='float',
+                keyable=True)
+            cmds.addAttr(
+                newRopeName,
+                shortName='div',
+                longName='division',
+                at='long',
+                keyable=True,
+                defaultValue=64)
 
-        md = cmds.shadingNode("multiplyDivide", asUtility=True)
-        cmds.connectAttr(newRopeName + ".twist", md + ".input1.input1X")
-        cmds.setAttr(md + ".input2X", 360)
+            cmds.connectAttr(newRopeName + ".division", tesse + ".vNumber")
+            # cmds.connectAttr(newRopeName + ".width", tesse + ".vNumber")
 
-        cmds.connectAttr(md + ".outputX", extrudeNode + ".rotation")
+            md = cmds.shadingNode("multiplyDivide", asUtility=True)
+            cmds.connectAttr(newRopeName + ".twist", md + ".input1.input1X")
+            cmds.setAttr(md + ".input2X", 360)
+
+            cmds.connectAttr(md + ".outputX", extrudeNode + ".rotation")
+
+            cmds.select(d=True)
 
 
 if __name__ == "__main__":
