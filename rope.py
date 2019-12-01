@@ -129,7 +129,6 @@ class Window(QtWidgets.QWidget):
 
     def load(self):
         path = self.le.text()
-        print path
         if os.path.exists(path):
             with open(path, 'rb') as data:
                 self.data = json.load(data)
@@ -172,34 +171,22 @@ class Window(QtWidgets.QWidget):
             cmds.parent(p, newRopeName)
             cmds.parent(newSurface, newRopeName)
 
-            cmds.addAttr(
-                newRopeName,
-                shortName='tw',
-                longName='twist', 
-                at='short',
-                keyable=True)
-            cmds.addAttr(
-                newRopeName,
-                shortName='w',
-                longName='width',
-                at='float',
-                keyable=True)
-            cmds.addAttr(
-                newRopeName,
-                shortName='div',
-                longName='division',
-                at='long',
-                keyable=True,
-                defaultValue=64)
+            cmds.addAttr(newRopeName, shortName='tw', longName='twist', at='short', keyable=True)
+            cmds.addAttr(newRopeName, shortName='tsx', longName='tubeScaleX', at='float', keyable=True, defaultValue=1.0)
+            cmds.addAttr(newRopeName, shortName='tsy', longName='tubeScaleY', at='float', keyable=True, defaultValue=1.0)
+            cmds.addAttr(newRopeName, shortName='tsz', longName='tubeScaleZ', at='float', keyable=True, defaultValue=1.0)
+            cmds.addAttr(newRopeName, shortName='div', longName='division', at='long', keyable=True, defaultValue=64)
 
             cmds.connectAttr(newRopeName + ".division", tesse + ".vNumber")
-            # cmds.connectAttr(newRopeName + ".width", tesse + ".vNumber")
 
             md = cmds.shadingNode("multiplyDivide", asUtility=True)
             cmds.connectAttr(newRopeName + ".twist", md + ".input1.input1X")
             cmds.setAttr(md + ".input2X", 360)
 
             cmds.connectAttr(md + ".outputX", extrudeNode + ".rotation")
+            cmds.connectAttr(newRopeName + ".tubeScaleX", p + ".scaleX")
+            cmds.connectAttr(newRopeName + ".tubeScaleY", p + ".scaleY")
+            cmds.connectAttr(newRopeName + ".tubeScaleZ", p + ".scaleZ")       
 
             cmds.select(d=True)
 
