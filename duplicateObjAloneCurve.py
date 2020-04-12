@@ -1,18 +1,28 @@
 """ duplicate along curve """
 
-from maya import OpenMaya
-from maya import cmds
 import random
-from PySide2 import QtWidgets
+
+from maya import OpenMaya
+from maya import OpenMayaUI
+from maya import cmds
+from PySide2 import QtWidgets, QtCore
+import shiboken2
+
+
+def getMayaWindow():
+    ptr = OpenMayaUI.MQtUtil.mainWindow()
+    return shiboken2.wrapInstance(long(ptr), QtWidgets.QMainWindow)
 
 
 class GUI(QtWidgets.QWidget):
     """ doc string """
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=getMayaWindow()):
         super(GUI, self).__init__(parent)
 
         self.setWindowTitle("Duplicate alone curves")
+        self.setWindowFlags(QtCore.Qt.Tool)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         self.surfaceLE = QtWidgets.QLineEdit("|test")
         self.surfaceSetButton = QtWidgets.QPushButton("set surface")
