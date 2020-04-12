@@ -20,7 +20,14 @@ class GUI(QtWidgets.QWidget):
     def __init__(self, parent=getMayaWindow()):
         super(GUI, self).__init__(parent)
 
-        self.setWindowTitle("Duplicate alone curves")
+        self.windowName = "Dupcalite along curve"
+
+        if cmds.window(self.windowName, q=True, ex=True):
+            cmds.deleteUI(self.windowName)
+
+        self.setObjectName(self.windowName)
+
+        self.setWindowTitle(self.windowName)
         self.setWindowFlags(QtCore.Qt.Tool)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
@@ -76,6 +83,8 @@ class GUI(QtWidgets.QWidget):
 def duplicateAloneCurves(surface, rivet, interval, randomness):
     """ duplicate alone curve """
 
+    cmds.undoInfo(openChunk=True)
+
     sel = OpenMaya.MSelectionList()
     OpenMaya.MGlobal.getActiveSelectionList(sel)
     numSelected = sel.length()
@@ -122,7 +131,7 @@ def duplicateAloneCurves(surface, rivet, interval, randomness):
             T = fnCurve.tangent(param)
 
             # Normal vector
-            surfaceFnMesh.getClosestPointAndNormal(point, P, N)
+            surfaceFnMesh.getClosestPointAndNormal(point, P, N, OpenMaya.MSpace.kWorld)
 
             # Bi-tangent vector
             B = N ^ T
@@ -147,6 +156,8 @@ def duplicateAloneCurves(surface, rivet, interval, randomness):
             rivets.append(obj)
 
         cmds.group(rivets)
+
+    cmds.undoInfo(closeChunk=True)
 
 
 if __name__ == "__main__":
