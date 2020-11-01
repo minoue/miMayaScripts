@@ -12,6 +12,8 @@ maya scripts for my own
 
 ## Rope
 
+## SnapToClosestUVs
+
 ## SeparatePolygonByUVShells
 
 ![separatePolygonsByUVShells.gif](./images/separatePolygonsByUVShells.gif)
