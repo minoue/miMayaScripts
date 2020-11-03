@@ -13,6 +13,7 @@ maya scripts for my own
 ## Rope
 
 ## SnapToClosestUVs
+![pysideSmapleWindow.gif](./images/snapUV.gif)
 
 ## SeparatePolygonByUVShells
 
