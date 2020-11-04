@@ -1,20 +1,22 @@
 # miMayaScripts
 maya scripts for my own
 
-## PySide sample window
+## [PySide sample window](./PySideWindow)
 
 ![pysideSmapleWindow.gif](./images/pysideSampleWindow.gif)
 
-## DuplicateObjAlongCurve 
+## [DuplicateObjAlongCurve](./duplicateObjAloneCurve.py)
 
 ![dac](./images/dac.webp)
-## FreezePntsAttr
 
-## Rope
+## [FreezePntsAttr](./freezePntsAttr.py)
 
-## SnapToClosestUVs
+## [Rope](./rope.py)
+
+## [SnapToClosestUVs](./snapToClosestUV.py)
+
 ![pysideSmapleWindow.gif](./images/snapUV.gif)
 
-## SeparatePolygonByUVShells
+## [SeparatePolygonByUVShells](./separatePolygonsByUVShell.py)
 
 ![separatePolygonsByUVShells.gif](./images/separatePolygonsByUVShells.gif)
