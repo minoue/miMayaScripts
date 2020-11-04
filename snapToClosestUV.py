@@ -12,10 +12,15 @@ from PySide2 import QtWidgets, QtCore
 from maya.api import OpenMaya
 from maya import OpenMayaUI
 from maya import cmds
-import kdtree
 import shiboken2
 import time
 import re
+
+try:
+    import kdtree
+except ImportError:
+    raise ImportError(
+        "KDTree is not installed. Download and install KDTree lib")
 
 
 def createTree(mesh):
