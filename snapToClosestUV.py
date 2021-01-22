@@ -88,7 +88,7 @@ class Window(QtWidgets.QWidget):
 
         componentType = sel[0].split(".")[-1][0:3]
         if not componentType == "map":
-            cmds.warning("UVs are selected")
+            cmds.warning("UVs are not selected")
             return
 
         snapTargetMeshPath = self.LE.text()
