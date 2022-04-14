@@ -62,9 +62,14 @@ class UVShell():
 
     def has(self, path):
         # type: (str) -> bool
+        """ Check if uv shell has a specific uv point
+            Args:
+                path: full path uv component
+            
+            Returns:
+                True if shell has a component
         """
-        Check if uv shell has a specific uv point
-        """
+
         if path in self.paths:
             return True
         else:
@@ -72,6 +77,14 @@ class UVShell():
 
 class UVObject():
     def __init__(self, dagPath, space=OpenMaya.MSpace.kWorld):
+        # type: (OpenMaya.MDagPath, OpenMaya.MSpace) -> bool
+        """ Get uv shell objects
+            Args:
+                uvs: List of uv components in full path strings
+            
+            Returns:
+                None
+        """
 
         self.shells = []
         self.dagPath = dagPath
@@ -111,8 +124,14 @@ class UVObject():
 
     def getShells(self, uvs):
         # type: (list) -> list
+        """Get uv shell objects
+            Args:
+                uvs: List of uv components in full path strings
+            
+            Returns:
+                List of uv shell objects
         """
-        """
+
         shellSet = set()
 
         for i in uvs:
@@ -125,6 +144,15 @@ class UVObject():
 
     def scaleShells(self, shells, sourceRatio, keepLayout=False):
         # type: (list, float, bool) -> None
+        """Scale uv shells
+            Args:
+                shells: List of uv shell objects
+                sourceRatio: source mesh scale ratio
+                keepLayout: keep relative positions to each uv shell
+            
+            Returns:
+                None
+        """
 
         fnMesh = OpenMaya.MFnMesh(self.dagPath)
         uArray, vArray = fnMesh.getUVs()

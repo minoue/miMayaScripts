@@ -27,7 +27,7 @@ reload(uvClass)
 
 __author__ = 'Michitaka Inoue'
 __license__ = '{license}'
-__version__ = '1.0.0}'
+__version__ = '1.0.1}'
 
 
 def getMayaWindow():
@@ -91,11 +91,16 @@ class Window(QtWidgets.QDialog):
         self.history = []
 
     def setObj(self):
+        """ Set source object in the UI
+        """
+
         sel = cmds.ls(sl=True, fl=True, long=True)
         if sel:
             self.le.setText(sel[0])
 
     def scaleUVs(self):
+        """ scale UVs
+        """
 
         source = self.le.text()
 
@@ -120,7 +125,14 @@ class Window(QtWidgets.QDialog):
         apiundo.commit(undo=self.undoIt, redo=self.doIt)
 
     def doIt(self, sourceRatio, mode):
-        # type: (float) -> None
+        # type: (float, str) -> None
+        """Run uv scale
+
+        Args:
+            sourceRatio: source mesh ratio between uv area and obj area
+            mode: scale model. 'world' or 'object'
+
+        """
 
         mSel = OpenMaya.MGlobal.getActiveSelectionList()
         cmdsSel = cmds.ls(sl=True, fl=True, long=True)
@@ -202,6 +214,8 @@ class Window(QtWidgets.QDialog):
             pass
 
     def undoIt(self, *args):
+        """ Set uv positions back for undo
+        """
         for i in self.history:
             fnMesh = OpenMaya.MFnMesh(i.dagPath)
             fnMesh.setUVs(i.uArray, i.vArray)
@@ -210,6 +224,13 @@ class Window(QtWidgets.QDialog):
 
 def getScalePivot(objs):
     # type: (list) -> tuple
+    """Get scale pivot
+        Args:
+            objs: List of fullpath strings
+        
+        Returns:
+            Scale pivot in uv space
+    """
 
     xMin = []
     xMax = []
@@ -234,8 +255,17 @@ def getScalePivot(objs):
     return (x, y)
 
 
-def getRatio(path, space):
+def getRatio(path: str, space):
     # type: (str, str) -> float
+    """Get scale pivot
+        Args:
+            path: object fullpath
+            space: 'world' or 'local'
+        
+        Returns:
+            ratio value in float
+
+    """
 
     polyArea = 0.0
 
