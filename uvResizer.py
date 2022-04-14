@@ -255,7 +255,7 @@ def getScalePivot(objs):
     return (x, y)
 
 
-def getRatio(path: str, space):
+def getRatio(path, space):
     # type: (str, str) -> float
     """Get scale pivot
         Args:
