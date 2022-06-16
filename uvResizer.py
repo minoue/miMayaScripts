@@ -13,7 +13,7 @@ from maya import cmds
 import shiboken2
 import apiundo
 import math
-import uvClass
+import uvObject
 
 try:
     # For python3
@@ -22,7 +22,7 @@ except ImportError:
     pass
 
 
-reload(uvClass)
+reload(uvObject)
 
 
 __author__ = 'Michitaka Inoue'
@@ -200,9 +200,9 @@ class Window(QtWidgets.QDialog):
             self.history.append(oldMesh)
 
             if self.spaceCheckBox.isChecked():
-                uvObj = uvClass.UVObject(dagPath)
+                uvObj = uvObject.UVObject(dagPath)
             else:
-                uvObj = uvClass.UVObject(dagPath, OpenMaya.MSpace.kObject)
+                uvObj = uvObject.UVObject(dagPath, OpenMaya.MSpace.kObject)
 
             selectedShells = uvObj.getShells(cmdsSel)
 
