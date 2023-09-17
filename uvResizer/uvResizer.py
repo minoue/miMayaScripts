@@ -227,7 +227,7 @@ def getScalePivot(objs):
     """Get scale pivot
         Args:
             objs: List of fullpath strings
-        
+
         Returns:
             Scale pivot in uv space
     """
@@ -261,7 +261,7 @@ def getRatio(path, space):
         Args:
             path: object fullpath
             space: 'world' or 'local'
-        
+
         Returns:
             ratio value in float
 
