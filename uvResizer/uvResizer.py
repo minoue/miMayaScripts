@@ -13,7 +13,7 @@ from maya import cmds
 import shiboken2
 import apiundo
 import math
-import uvObject
+from . import uvObject
 
 try:
     # For python3
@@ -27,12 +27,12 @@ reload(uvObject)
 
 __author__ = 'Michitaka Inoue'
 __license__ = '{license}'
-__version__ = '1.0.1}'
+__version__ = '1.0.2}'
 
 
 def getMayaWindow():
     ptr = OpenMayaUI.MQtUtil.mainWindow()
-    return shiboken2.wrapInstance(long(ptr), QtWidgets.QMainWindow)
+    return shiboken2.wrapInstance(int(ptr), QtWidgets.QMainWindow)
 
 
 class Mesh(object):
