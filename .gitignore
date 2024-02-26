@@ -1,6 +1,0 @@
-*.un~
-*.DS_Store
-*.sublime-project
-*.sublime-workspace
-__pycache__
-maya_complete_modules
