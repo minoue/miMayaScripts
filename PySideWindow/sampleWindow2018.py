@@ -1,8 +1,13 @@
 from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
-from PySide2 import QtCore, QtWidgets
 from maya import OpenMayaUI
 from maya import cmds
-import shiboken2
+
+try:
+    from PySide6 import QtCore, QtWidgets, QtGui
+    import shiboken6 as shiboken
+except ImportError:
+    from PySide2 import QtCore, QtWidgets
+    import shiboken2 as shiboken
 
 
 def mayaUIContent(parent):
@@ -19,7 +24,7 @@ def mayaUIContent(parent):
     cmds.setParent('..')
 
     cmds.frameLayout("Sample Frame 2", collapsable=True)
-    cmds.gridLayout(numberOfColumns=6, cellWidthHeight=(35, 35))
+    cmds.gridLayout(numberOfColumns=4, cellWidthHeight=(48, 48))
     cmds.shelfButton(image1="polySphere.png", rpt=True, c=cmds.polySphere)
     cmds.shelfButton(image1="sphere.png", rpt=True, c=cmds.sphere)
     cmds.setParent('..')
@@ -28,7 +33,7 @@ def mayaUIContent(parent):
     cmds.setParent('..')  # columnLayout
 
     ptr = OpenMayaUI.MQtUtil.findLayout(layout)
-    obj = shiboken2.wrapInstance(long(ptr), QtWidgets.QWidget)
+    obj = shiboken.wrapInstance(int(ptr), QtWidgets.QWidget)
 
     return obj
 
@@ -111,7 +116,7 @@ class MainWindow(MayaQWidgetDockableMixin, QtWidgets.QMainWindow):
         menu = self.menuBar()
 
         # About
-        aboutAction = QtWidgets.QAction("&About", self)
+        aboutAction = QtGui.QAction("&About", self)
         aboutAction.setStatusTip('About this script')
         aboutAction.triggered.connect(self.showAbout)
 
