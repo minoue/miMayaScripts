@@ -1,14 +1,41 @@
-from Qt import QtGui, QtCore, QtWidgets
+from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
 from maya import OpenMayaUI
+from maya import cmds
+
 try:
-    import shiboken
+    from PySide6 import QtCore, QtWidgets, QtGui
+    import shiboken6 as shiboken
 except ImportError:
+    from PySide2 import QtCore, QtWidgets
     import shiboken2 as shiboken
 
 
-def getMayaWindow():
-    ptr = OpenMayaUI.MQtUtil.mainWindow()
-    return shiboken.wrapInstance(long(ptr), QtWidgets.QMainWindow)
+def mayaUIContent(parent):
+    """ Contents by Maya standard UI widgets """
+
+    layout = cmds.columnLayout(adjustableColumn=True, parent=parent)
+
+    cmds.frameLayout("Sample Frame 1", collapsable=True)
+    cmds.columnLayout(adjustableColumn=True, rowSpacing=2)
+    cmds.button("maya button 1")
+    cmds.button("maya button 2")
+    cmds.button("maya button 3")
+    cmds.setParent('..')
+    cmds.setParent('..')
+
+    cmds.frameLayout("Sample Frame 2", collapsable=True)
+    cmds.gridLayout(numberOfColumns=4, cellWidthHeight=(48, 48))
+    cmds.shelfButton(image1="polySphere.png", rpt=True, c=cmds.polySphere)
+    cmds.shelfButton(image1="sphere.png", rpt=True, c=cmds.sphere)
+    cmds.setParent('..')
+    cmds.setParent('..')
+
+    cmds.setParent('..')  # columnLayout
+
+    ptr = OpenMayaUI.MQtUtil.findLayout(layout)
+    obj = shiboken.wrapInstance(int(ptr), QtWidgets.QWidget)
+
+    return obj
 
 
 class Content(QtWidgets.QWidget):
@@ -19,12 +46,14 @@ class Content(QtWidgets.QWidget):
 
         super(Content, self).__init__(parent)
 
-        self.button = QtWidgets.QPushButton("button")
+        self.button1 = QtWidgets.QPushButton("button1")
+        self.button2 = QtWidgets.QPushButton("button2")
         self.le = QtWidgets.QLineEdit("lineedit")
         self.textEdit = QtWidgets.QTextEdit("text edit")
 
         layout = QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.TopToBottom)
-        layout.addWidget(self.button)
+        layout.addWidget(self.button1)
+        layout.addWidget(self.button2)
         layout.addWidget(self.le)
         layout.addWidget(self.textEdit)
 
@@ -46,8 +75,8 @@ class CentralWidget(QtWidgets.QWidget):
         """ Crete widgets """
 
         self.tabWidget = QtWidgets.QTabWidget()
-        self.tabWidget.addTab(Content(), "Tab1")
-        self.tabWidget.addTab(Content(), "Tab2")
+        self.tabWidget.addTab(Content(self), "Tab1")
+        self.tabWidget.addTab(Content(self), "Tab2")
 
     def layoutUI(self):
         """ Layout widgets """
@@ -58,31 +87,26 @@ class CentralWidget(QtWidgets.QWidget):
         self.setLayout(mainLayout)
 
 
-class MainWindow(QtWidgets.QMainWindow):
-    """ Main window """
+class MainWindow(MayaQWidgetDockableMixin, QtWidgets.QMainWindow):
 
-    def closeExistingWindow(self):
-        """ Close window if exists """
-
-        for qt in QtWidgets.QApplication.topLevelWidgets():
-            try:
-                if qt.__class__.__name__ == self.__class__.__name__:
-                    qt.close()
-            except:
-                pass
-
-    def __init__(self, parent=getMayaWindow()):
+    def __init__(self, parent=None):
         """ init """
 
-        self.closeExistingWindow()
         super(MainWindow, self).__init__(parent)
+
+        self.thisObjectName = "testDockWindow"
+        self.WindowTitle = "Sample Dockable Widget"
+        self.workspaceControlName = self.thisObjectName + "WorkspaceControl"
+
+        self.setObjectName(self.thisObjectName)
+        self.setWindowTitle(self.WindowTitle)
 
         self.setWindowFlags(QtCore.Qt.Window)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         # Create and set central widget
-        cw = CentralWidget()
-        self.setCentralWidget(cw)
+        self.cw = CentralWidget()
+        self.setCentralWidget(self.cw)
 
         self.setupMenu()
 
@@ -92,7 +116,7 @@ class MainWindow(QtWidgets.QMainWindow):
         menu = self.menuBar()
 
         # About
-        aboutAction = QtWidgets.QAction("&About", self)
+        aboutAction = QtGui.QAction("&About", self)
         aboutAction.setStatusTip('About this script')
         aboutAction.triggered.connect(self.showAbout)
 
@@ -108,83 +132,27 @@ class MainWindow(QtWidgets.QMainWindow):
             'About ',
             'Awesome window\n')
 
-
-def mainWindow(func):
-    """ Decorate main/dock fuctions """
-
-    def __wrapper(*args):
-
-        """ close window if exist """
-        global win
+    def run(self):
         try:
-            win.close()
-        except:
+            cmds.deleteUI(self.workspaceControlName)
+        except RuntimeError:
             pass
 
-        # New main window object
-        win = MainWindow()
-        func(win)
+        self.show(dockable=True)
+        cmds.workspaceControl(
+            self.workspaceControlName,
+            edit=True,
+            dockToControl=['Outliner', 'right'])
+        self.raise_()
 
-    return __wrapper
-
-
-@mainWindow
-def main(mainWindow):
-    """ Show single window
-        args
-            mainWindow : QtWidgets.QMainWindow
-        return
-            None
-    """
-
-    mainWindow.show()
-    mainWindow.raise_()
+        # Maya layout widget is added here to be parented under workspaceControl
+        self.cw.tabWidget.addTab(mayaUIContent(self.workspaceControlName), "MayaLayout")
 
 
-@mainWindow
-def dock(mainWindow):
-    """ Show dockable window
-        args
-            mainWindow : QtWidgets.QMainWindow
-        return
-            None
-    """
-
-    mainWindow.setObjectName('sampleWindowObject')
-
-    DOCK_NAME = "dock_name"
-
-    from pymel import all as pm
-
-    if pm.dockControl(DOCK_NAME, q=True, ex=1):
-        pm.deleteUI(DOCK_NAME)
-
-    if pm.window('dummyWindow', q=True, ex=1):
-        pm.deleteUI('dummyWindow')
-
-    # Create dummy window object to keep the layout
-    pm.window('dummyWindow')
-
-    pm.columnLayout()
-    floatingLayout = pm.paneLayout(
-        configuration='single',
-        w=300)
-    pm.setParent('..')
-
-    # Create new dock
-    pm.dockControl(
-        DOCK_NAME,
-        aa=['right', 'left'],
-        a='right',
-        fl=False,
-        con=floatingLayout,
-        label="Sample Dock",
-        w=300)
-
-    # Parent QMainWindow object to the layout
-    pm.control('sampleWindowObject', e=True, parent=floatingLayout)
+def main():
+    w = MainWindow()
+    w.run()
 
 
 if __name__ == "__main__":
-    # main()
-    dock()
+    main()
