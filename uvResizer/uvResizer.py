@@ -5,12 +5,18 @@ Requirements: * https://github.com/mottosso/apiundo
               * uvObject.py
 """
 
-from PySide2 import QtWidgets, QtCore
 from maya.api import OpenMaya
 from maya import OpenMayaUI
 from maya import cmds
 
-import shiboken2
+try:
+    from PySide6 import QtWidgets, QtCore
+    import shiboken6 as shiboken
+except ImportError:
+    from PySide2 import QtWidgets, QtCore
+    import shiboken2 as shiboken
+
+
 import apiundo
 import math
 from . import uvObject
@@ -27,12 +33,12 @@ reload(uvObject)
 
 __author__ = 'Michitaka Inoue'
 __license__ = '{license}'
-__version__ = '1.0.2}'
+__version__ = '1.0.3}'
 
 
 def getMayaWindow():
     ptr = OpenMayaUI.MQtUtil.mainWindow()
-    return shiboken2.wrapInstance(int(ptr), QtWidgets.QMainWindow)
+    return shiboken.wrapInstance(int(ptr), QtWidgets.QMainWindow)
 
 
 class Mesh(object):
@@ -287,7 +293,7 @@ def getRatio(path, space):
 
     while not polyIter.isDone():
         uvArea += polyIter.getUVArea()
-        polyIter.next(None)
+        polyIter.next()
 
     ratio = uvArea / polyArea
 
