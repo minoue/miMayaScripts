@@ -1,40 +1,29 @@
 from maya import cmds
-from maya import OpenMaya
+from maya.api import OpenMaya
 
 
-def getInstances(path):
-    # type: (str) -> list
-    """
-    http://shihchinw.github.io/2011/10/how-to-determine-direct-instances-in-maya.html
-    Get instance objects from selected selected node and its children
-
-    """
-
+def getInstances(path: str):
     sel = OpenMaya.MSelectionList()
-
-    dagPath = OpenMaya.MDagPath()
-    fnDag = OpenMaya.MFnDagNode()
     sel.add(path)
-    sel.getDagPath(0, dagPath)
+    dagPath = sel.getDagPath(0)
 
     objs = []
 
     itDag = OpenMaya.MItDag()
     itDag.reset(dagPath, OpenMaya.MItDag.kBreadthFirst)
 
+    fnDag = OpenMaya.MFnDagNode()
+
     while not itDag.isDone():
-
         fnDag.setObject(itDag.currentItem())
-
         if fnDag.isInstanced():
             mObj = fnDag.parent(0)
             p = OpenMaya.MFnDagNode(mObj)
 
             dataParent = p.fullPathName()
-
-            itDag.getPath(dagPath)
-            dagPath.pop(1)
-            hierarchyParent = dagPath.fullPathName()
+            dagPath2 = itDag.getPath()
+            dagPath2.pop(1)
+            hierarchyParent = dagPath2.fullPathName()
 
             if dataParent != hierarchyParent:
                 objs.append(hierarchyParent)
@@ -44,7 +33,7 @@ def getInstances(path):
     return objs
 
 
-def main():
+def main(select=True):
     root = cmds.ls(sl=True, fl=True, long=True)
 
     if not root:
@@ -53,7 +42,8 @@ def main():
         root = root[0]
 
     instances = getInstances(root)
-    cmds.select(instances, r=True)
+    if select:
+        cmds.select(instances, r=True)
 
 
 if __name__ == "__main__":
